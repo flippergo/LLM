@@ -17,5 +17,5 @@ chmod +x object_detection.py
 streamlit run object_detection.py
 ```
 
-The web interface lets you upload an image, view detection results and
-optionally download the annotated output.
+The web interface lets you upload an image, set a confidence threshold with a
+slider, view detection results and optionally download the annotated output.

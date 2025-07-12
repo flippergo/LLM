@@ -22,9 +22,20 @@ def load_model() -> YOLO:
     return YOLO(weights_path)
 
 
-def run_detection(model: YOLO, image: Image.Image) -> Image.Image:
-    """Run object detection and return an annotated RGB ``PIL.Image``."""
-    results = model(image)[0]
+def run_detection(model: YOLO, image: Image.Image, conf_thres: float) -> Image.Image:
+    """Run object detection with a confidence threshold.
+
+    Parameters
+    ----------
+    model:
+        Loaded YOLO model.
+    image:
+        ``PIL.Image`` object to perform detection on.
+    conf_thres:
+        Minimum confidence score to include a detection.
+    """
+
+    results = model.predict(image, conf=conf_thres)[0]
     annotated_bgr = results.plot()
     annotated_rgb = annotated_bgr[..., ::-1]
     return Image.fromarray(annotated_rgb)
@@ -41,9 +52,13 @@ def main() -> None:
     image = Image.open(uploaded_file).convert("RGB")
     st.image(image, caption="Uploaded Image", use_column_width=True)
 
+    conf_thres = st.slider(
+        "Confidence threshold", min_value=0.0, max_value=1.0, value=0.25, step=0.01
+    )
+
     if st.button("Detect objects"):
         model = load_model()
-        annotated = run_detection(model, image)
+        annotated = run_detection(model, image, conf_thres)
         st.image(annotated, caption="Detection Result", use_column_width=True)
 
         buf = BytesIO()
